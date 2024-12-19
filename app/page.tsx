@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import { v4 as uuidv4 } from "uuid"; // To generate unique thread_id
 
 export default function Home() {
   const [query, setQuery] = useState(""); // Store user input
@@ -9,6 +10,20 @@ export default function Home() {
     { role: string; text: string; loading?: boolean }[]
   >([]); // Store the conversation with a loading state for each message
   const [showPrompts, setShowPrompts] = useState(true); // Toggle for showing prompts
+  const [threadId, setThreadId] = useState(""); // Unique thread ID for session
+  const [contextEnabled, setContextEnabled] = useState(false); // Toggle for context usage
+
+  // Generate or retrieve a thread ID when the component mounts
+  useEffect(() => {
+    const existingThreadId = localStorage.getItem("thread_id");
+    if (existingThreadId) {
+      setThreadId(existingThreadId);
+    } else {
+      const newThreadId = uuidv4();
+      localStorage.setItem("thread_id", newThreadId);
+      setThreadId(newThreadId);
+    }
+  }, []);
 
   // Suggested prompts
   const prompts = [
@@ -39,7 +54,8 @@ export default function Home() {
         },
         body: JSON.stringify({
           query,
-          context_enabled: false,
+          thread_id: threadId, // Pass the thread ID
+          context_enabled: contextEnabled, // Enable or disable context
         }),
       });
 
@@ -126,10 +142,24 @@ export default function Home() {
         </div>
       )}
 
+      {/* Context Toggle */}
+      <div className="flex items-center justify-center p-4">
+        <label htmlFor="contextToggle" className="text-gray-400 mr-2">
+          Enable Context:
+        </label>
+        <input
+          type="checkbox"
+          id="contextToggle"
+          checked={contextEnabled}
+          onChange={(e) => setContextEnabled(e.target.checked)}
+          className="form-checkbox text-zinc-700 rounded"
+        />
+      </div>
+
       {/* Chat Input */}
       <form
         onSubmit={handleSubmit}
-        className="sticky bottom-0 bg-zinc-900 p-4 flex items-center justify-center gap-2 "
+        className="sticky bottom-0 bg-zinc-900 p-4 flex items-center justify-center gap-2"
       >
         <input
           type="text"
