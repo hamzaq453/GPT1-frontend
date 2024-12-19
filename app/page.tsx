@@ -27,7 +27,7 @@ const handleSubmit = async (event: React.FormEvent) => {
   setLoading(true);
 
   try {
-    const res = await fetch("https://gpt-1-backend.vercel.app/query", {
+    const res = await fetch("https://gpt-1-backend-51z15yo12-hamzaq453s-projects.vercel.app/query", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
