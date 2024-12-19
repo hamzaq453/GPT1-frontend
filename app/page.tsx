@@ -16,42 +16,43 @@ export default function Home() {
     "What are the trending design ideas on TikTok in 2024?",
   ];
 
-  // Function to handle user query submission
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!query.trim()) return;
+// Function to handle user query submission
+const handleSubmit = async (event: React.FormEvent) => {
+  event.preventDefault();
+  if (!query.trim()) return;
 
-    const userMessage = { role: "user", text: query };
-    setMessages((prev) => [...prev, userMessage]);
-    setQuery(""); // Clear input
-    setLoading(true);
+  const userMessage = { role: "user", text: query };
+  setMessages((prev) => [...prev, userMessage]);
+  setQuery(""); // Clear input
+  setLoading(true);
 
-    try {
-      const res = await fetch("http://127.0.0.1:8000/query", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query,
-          context_enabled: false,
-        }),
-      });
+  try {
+    const res = await fetch("https://gpt-1-backend.vercel.app/query", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query,
+        context_enabled: false,
+      }),
+    });
 
-      if (!res.ok) {
-        throw new Error("Failed to fetch the response");
-      }
-
-      const data = await res.json();
-      const aiMessage = { role: "ai", text: data.response }; // No prefixing as GPT1 generates formatted markdown
-      setMessages((prev) => [...prev, aiMessage]); // Add AI response
-    } catch (error) {
-      const errorMessage = { role: "ai", text: "GPT1: Error: Unable to fetch response." };
-      setMessages((prev) => [...prev, errorMessage]); // Add error response
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      throw new Error("Failed to fetch the response");
     }
-  };
+
+    const data = await res.json();
+    const aiMessage = { role: "ai", text: data.response }; // No prefixing as GPT1 generates formatted markdown
+    setMessages((prev) => [...prev, aiMessage]); // Add AI response
+  } catch {
+    const errorMessage = { role: "ai", text: "GPT1: Error: Unable to fetch response." };
+    setMessages((prev) => [...prev, errorMessage]); // Add error response
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Function to handle suggested prompt clicks
   const handlePromptClick = (prompt: string) => {
